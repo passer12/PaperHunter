@@ -8,10 +8,12 @@ const MAX_SUBPAGE = 5;
 const DELAY_RANGE = [500, 1500]; // milliseconds
 
 // CORS proxy option to bypass browser CORS restrictions
-// Using allorigins.win - a free, reliable CORS proxy service
+// Using corsproxy.io - a free, reliable CORS proxy service
 // Note: Public CORS proxies may be rate-limited, but this enables the browser version to work
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-// Alternative option: 'https://corsproxy.io/?'
+const CORS_PROXY = 'https://corsproxy.io/?';
+// Alternative options: 
+// - 'https://api.allorigins.win/raw?url='
+// - 'https://api.codetabs.com/v1/proxy?quest='
 // To disable CORS proxy, set this to an empty string: ''
 
 // Known conference list - matches config.py

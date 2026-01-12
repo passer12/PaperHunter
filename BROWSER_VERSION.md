@@ -8,7 +8,7 @@ This repository includes a browser-based version of PaperHunter (`paperhunter.js
 
 ### The Solution
 
-The browser version now uses a **free CORS proxy service** (allorigins.win) to bypass browser cross-origin restrictions. This means:
+The browser version now uses a **free CORS proxy service** (corsproxy.io) to bypass browser cross-origin restrictions. This means:
 
 - ✅ **Direct browser access now works!** No need for extensions or manual configuration
 - ✅ Users can search for papers directly from the web interface
@@ -20,7 +20,7 @@ The code in `paperhunter.js` automatically routes requests through the CORS prox
 
 ```javascript
 // CORS proxy is configured by default
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+const CORS_PROXY = 'https://corsproxy.io/?';
 ```
 
 This proxy service acts as an intermediary that:
