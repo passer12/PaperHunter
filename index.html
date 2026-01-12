@@ -343,17 +343,13 @@
             
             <div style="background: #d4edda; border: 2px solid #28a745; padding: 20px; margin-bottom: 25px;">
                 <p style="margin-bottom: 10px;"><strong>✅ 浏览器版本现已可用！</strong></p>
-                <p style="margin-bottom: 10px;">此网页版本现在使用免费的CORS代理服务（corsproxy.io）来解决浏览器跨域限制问题。</p>
+                <p style="margin-bottom: 10px;">此网页版本现在使用DBLP官方搜索API，无需任何第三方代理服务。</p>
                 <p style="margin-bottom: 10px;"><strong>💡 提示：</strong></p>
                 <ul style="margin-left: 20px;">
                     <li>网页版本功能完整，可以直接在浏览器中使用</li>
-                    <li>对于大规模查询或更稳定的使用，仍推荐安装Python命令行工具（见下方"⚙️ 安装"部分）</li>
-                    <li>免费代理服务可能有速率限制，如遇问题请稍后重试</li>
+                    <li>直接连接到DBLP官方API，确保隐私和稳定性</li>
+                    <li>对于大规模查询，仍推荐安装Python命令行工具（见下方"⚙️ 安装"部分）</li>
                 </ul>
-                <p style="margin-top: 15px; padding: 12px; background: #fff3cd; border-left: 4px solid #ffc107;">
-                    <strong>🔒 隐私提示：</strong> 使用浏览器版本时，您的搜索请求（包括会议名称、年份和关键词）将通过第三方CORS代理服务转发。
-                    如果您在进行敏感或专有研究，建议使用Python命令行工具，它直接连接到DBLP而无需经过第三方服务。
-                </p>
             </div>
             
             <form id="queryForm">
@@ -690,47 +686,26 @@
                 
                 const resultsContent = document.getElementById('resultsContent');
                 
-                // Check if it's a CORS error
-                if (error.message === 'CORS_ERROR') {
-                    resultsContent.innerHTML = `
-                        <div class="result-item" style="background: #fff3cd; border-left-color: #ffc107;">
-                            <p><strong>🔒 网络请求失败</strong></p>
-                            <p style="margin-top: 10px;">无法访问DBLP数据。这可能是由于：</p>
-                            <ol style="margin-left: 20px; margin-top: 10px;">
-                                <li>免费CORS代理服务暂时不可用或遇到速率限制</li>
-                                <li>您的网络连接存在问题</li>
-                                <li>DBLP服务暂时不可访问</li>
-                            </ol>
-                            <p style="margin-top: 10px;"><strong>解决方案：</strong></p>
-                            <ol style="margin-left: 20px; margin-top: 10px;">
-                                <li><strong>推荐方式：</strong> 稍后重试（代理服务可能恢复）</li>
-                                <li><strong>替代方案：</strong> 安装Python版本的PaperHunter工具（请参考下方的安装说明）</li>
-                            </ol>
-                            <p style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3;">
-                                <strong>💡 提示：</strong> Python版本的工具不依赖第三方代理，更加稳定可靠。
-                                请查看下方的"⚙️ 安装"部分了解如何安装和使用命令行工具。
-                            </p>
-                        </div>
-                        <div class="result-item">
-                            <div class="result-meta">搜索参数：</div>
-                            <p><strong>会议：</strong> ${conferences}</p>
-                            <p><strong>年份：</strong> ${year}</p>
-                            ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
-                            ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
-                        </div>
-                    `;
-                } else {
-                    resultsContent.innerHTML = `
-                        <div class="result-item" style="background: #ffebee; border-left-color: #f44336;">
-                            <p><strong>❌ 搜索出错</strong></p>
-                            <p style="margin-top: 10px;">${error.message}</p>
-                        </div>
-                        <div class="result-item">
-                            <div class="result-meta">搜索日志：</div>
-                            <pre style="white-space: pre-wrap; font-size: 0.9em;">${progressMessages.join('\n')}</pre>
-                        </div>
-                    `;
-                }
+                resultsContent.innerHTML = `
+                    <div class="result-item" style="background: #ffebee; border-left-color: #f44336;">
+                        <p><strong>❌ 搜索失败</strong></p>
+                        <p style="margin-top: 10px;">${error.message}</p>
+                        <p style="margin-top: 10px;">可能的原因：</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>网络连接问题</li>
+                            <li>DBLP API暂时不可访问</li>
+                            <li>会议名称或年份无效</li>
+                        </ul>
+                        <p style="margin-top: 10px;">请检查您的输入并重试，或稍后再试。</p>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-meta">搜索参数：</div>
+                        <p><strong>会议：</strong> ${conferences}</p>
+                        <p><strong>年份：</strong> ${year}</p>
+                        ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
+                        ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
+                    </div>
+                `;
                 
                 document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
             }
