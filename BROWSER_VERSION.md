@@ -101,11 +101,13 @@ The CORS proxy server:
 
 While the browser version now works, the Python CLI is still better for production use:
 - ✅ No dependency on third-party proxy services
+- ✅ **Better privacy** - Direct connection to DBLP, no third-party can see your queries
 - ✅ Faster (no extra hop through proxy)
 - ✅ More reliable (no proxy rate limits)
 - ✅ Better for batch processing
 - ✅ Can be scripted and automated
-- ✅ Better privacy (no data goes through third-party)
+
+**Privacy Note:** When using the browser version with CORS proxy, your search queries (conference names, years, keywords) are sent through the proxy service (corsproxy.io). While these services are generally trustworthy, sensitive or proprietary research should use the Python CLI for direct DBLP access.
 
 ## Recommendation
 

@@ -9,12 +9,15 @@ const DELAY_RANGE = [500, 1500]; // milliseconds
 
 // CORS proxy option to bypass browser CORS restrictions
 // Using corsproxy.io - a free, reliable CORS proxy service
+// ⚠️ PRIVACY NOTICE: When using a CORS proxy, your requests (including conference names,
+// years, and keywords) will be routed through a third-party service. For sensitive research,
+// consider using the Python CLI version instead, which makes direct requests to DBLP.
 // Note: Public CORS proxies may be rate-limited, but this enables the browser version to work
 const CORS_PROXY = 'https://corsproxy.io/?';
 // Alternative options: 
 // - 'https://api.allorigins.win/raw?url='
 // - 'https://api.codetabs.com/v1/proxy?quest='
-// To disable CORS proxy, set this to an empty string: ''
+// To disable CORS proxy and use direct requests (will fail due to CORS), set to empty string: ''
 
 // Known conference list - matches config.py
 const KNOWN_CONFS = {
