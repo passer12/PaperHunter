@@ -340,6 +340,18 @@
 
         <section class="query-section">
             <h2>🔍 论文查询</h2>
+            
+            <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 20px; margin-bottom: 25px;">
+                <p style="margin-bottom: 10px;"><strong>⚠️ 重要提示：浏览器版本功能限制</strong></p>
+                <p style="margin-bottom: 10px;">由于浏览器的跨域安全策略（CORS），此网页版本<strong>可能无法</strong>直接访问DBLP数据。</p>
+                <p style="margin-bottom: 10px;"><strong>推荐使用方式：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>安装Python版本的PaperHunter命令行工具（见下方"⚙️ 安装"部分）</li>
+                    <li>命令行工具功能完整，无限制，且更加稳定</li>
+                </ul>
+                <p style="margin-top: 10px;">您可以尝试使用下方表单，但如果遇到跨域错误，请安装命令行工具。</p>
+            </div>
+            
             <form id="queryForm">
                 <div class="form-group">
                     <label for="conferences">会议名称</label>
@@ -655,16 +667,44 @@
                 document.getElementById('resultsSection').style.display = 'block';
                 
                 const resultsContent = document.getElementById('resultsContent');
-                resultsContent.innerHTML = `
-                    <div class="result-item" style="background: #ffebee; border-left-color: #f44336;">
-                        <p><strong>❌ 搜索出错</strong></p>
-                        <p style="margin-top: 10px;">${error.message}</p>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-meta">搜索日志：</div>
-                        <pre style="white-space: pre-wrap; font-size: 0.9em;">${progressMessages.join('\n')}</pre>
-                    </div>
-                `;
+                
+                // Check if it's a CORS error
+                if (error.message === 'CORS_ERROR') {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="background: #fff3cd; border-left-color: #ffc107;">
+                            <p><strong>🔒 跨域请求限制</strong></p>
+                            <p style="margin-top: 10px;">由于浏览器的跨域安全策略（CORS），无法直接从浏览器访问DBLP数据。</p>
+                            <p style="margin-top: 10px;"><strong>解决方案：</strong></p>
+                            <ol style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>推荐方式：</strong> 安装Python版本的PaperHunter工具（请参考下方的安装说明）</li>
+                                <li><strong>临时方案：</strong> 使用浏览器扩展禁用CORS（如Chrome的"CORS Unblock"扩展，仅用于测试）</li>
+                                <li><strong>技术说明：</strong> DBLP网站不提供CORS头，因此浏览器会阻止跨域请求以保护用户安全</li>
+                            </ol>
+                            <p style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3;">
+                                <strong>💡 提示：</strong> Python版本的工具不受此限制，可以完整访问所有DBLP数据。
+                                请查看下方的"⚙️ 安装"部分了解如何安装和使用命令行工具。
+                            </p>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-meta">搜索参数：</div>
+                            <p><strong>会议：</strong> ${conferences}</p>
+                            <p><strong>年份：</strong> ${year}</p>
+                            ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
+                            ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="background: #ffebee; border-left-color: #f44336;">
+                            <p><strong>❌ 搜索出错</strong></p>
+                            <p style="margin-top: 10px;">${error.message}</p>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-meta">搜索日志：</div>
+                            <pre style="white-space: pre-wrap; font-size: 0.9em;">${progressMessages.join('\n')}</pre>
+                        </div>
+                    `;
+                }
                 
                 document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
             }

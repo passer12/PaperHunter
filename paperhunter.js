@@ -259,12 +259,20 @@ async function checkConfPages(short, key, year) {
     // 1. Try main conference page (e.g., icml2024.html)
     const mainUrl = `${baseUrl}${key}${year}.html`;
     try {
-        const response = await fetch(mainUrl, { method: 'HEAD' });
+        const response = await fetch(mainUrl, { 
+            method: 'GET',
+            mode: 'cors',
+            cache: 'default'
+        });
         if (response.ok) {
             return [mainUrl];
         }
     } catch (e) {
         console.log(`Error checking main page: ${e.message}`);
+        // If this is a CORS error, throw a specific error
+        if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+            throw new Error('CORS_ERROR');
+        }
     }
 
     // 2. Try sub-pages (e.g., icml2024-1.html)
@@ -272,7 +280,11 @@ async function checkConfPages(short, key, year) {
     for (let i = 1; i <= MAX_SUBPAGE; i++) {
         const subUrl = `${baseUrl}${key}${year}-${i}.html`;
         try {
-            const response = await fetch(subUrl, { method: 'HEAD' });
+            const response = await fetch(subUrl, { 
+                method: 'GET',
+                mode: 'cors',
+                cache: 'default'
+            });
             if (response.ok) {
                 found.push(subUrl);
             } else {
@@ -280,6 +292,9 @@ async function checkConfPages(short, key, year) {
             }
         } catch (e) {
             console.log(`Error checking sub-page ${i}: ${e.message}`);
+            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+                throw new Error('CORS_ERROR');
+            }
             break;
         }
         await randomDelay();
@@ -294,12 +309,19 @@ async function checkConfPages(short, key, year) {
         const suffix = specialSuffix[key];
         const specialUrl = `${baseUrl}${key}${year}${suffix}.html`;
         try {
-            const response = await fetch(specialUrl, { method: 'HEAD' });
+            const response = await fetch(specialUrl, { 
+                method: 'GET',
+                mode: 'cors',
+                cache: 'default'
+            });
             if (response.ok) {
                 return [specialUrl];
             }
         } catch (e) {
             console.log(`Error checking special suffix page: ${e.message}`);
+            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+                throw new Error('CORS_ERROR');
+            }
         }
     }
 
@@ -387,7 +409,15 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
     }
     
     // Get valid conference pages
-    const validPages = await checkConfPages(confShort, dblpKey, year);
+    let validPages;
+    try {
+        validPages = await checkConfPages(confShort, dblpKey, year);
+    } catch (e) {
+        if (e.message === 'CORS_ERROR') {
+            throw new Error('CORS_ERROR');
+        }
+        throw e;
+    }
     
     if (validPages.length === 0) {
         if (progressCallback) {
@@ -400,7 +430,10 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
     const titles = [];
     for (const url of validPages) {
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                mode: 'cors',
+                cache: 'default'
+            });
             if (!response.ok) {
                 if (progressCallback) {
                     progressCallback(`Failed to retrieve ${url} (Status: ${response.status})`);
@@ -416,6 +449,9 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
         } catch (e) {
             if (progressCallback) {
                 progressCallback(`Error during content extraction: ${e.message}`);
+            }
+            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+                throw new Error('CORS_ERROR');
             }
         }
     }
