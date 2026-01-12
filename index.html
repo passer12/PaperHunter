@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="PaperHunter - A robust academic paper discovery and precision filtering tool for computer science research">
-    <meta name="keywords" content="academic papers, research, DBLP, computer science, conference papers">
-    <title>🕵️‍♂️ PaperHunter - Academic Paper Discovery Tool</title>
+    <meta name="description" content="PaperHunter - 强大的学术论文发现和精确过滤工具">
+    <meta name="keywords" content="学术论文, 研究, DBLP, 计算机科学, 会议论文">
+    <title>🕵️‍♂️ PaperHunter - 学术论文发现工具</title>
     <style>
         * {
             margin: 0;
@@ -14,10 +14,10 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 'Microsoft YaHei', 'SimSun', sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #000;
+            background: #fff;
             min-height: 100vh;
         }
 
@@ -29,33 +29,129 @@
 
         header {
             text-align: center;
-            padding: 60px 20px 40px;
-            color: white;
+            padding: 40px 20px 30px;
+            border-bottom: 2px solid #000;
+            margin-bottom: 40px;
         }
 
         .logo {
-            font-size: 4em;
+            font-size: 3em;
             margin-bottom: 10px;
         }
 
         h1 {
             font-size: 2.5em;
             margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            color: #000;
         }
 
         .tagline {
-            font-size: 1.2em;
-            opacity: 0.95;
+            font-size: 1.1em;
+            color: #666;
             max-width: 800px;
             margin: 0 auto;
         }
 
+        .query-section {
+            background: #f5f5f5;
+            border: 2px solid #000;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .query-section h2 {
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #000;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #000;
+            background: #fff;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #666;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+        }
+
+        .btn-search {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            background: #fff;
+            color: #000;
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            border: 2px solid #000;
+            background: #fff;
+        }
+
+        .results-section h3 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .result-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #000;
+            background: #f5f5f5;
+        }
+
+        .result-meta {
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
         .main-content {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            padding: 50px;
+            background: #fff;
+            border: 2px solid #000;
+            padding: 40px;
             margin-bottom: 30px;
         }
 
@@ -68,15 +164,8 @@
 
         .feature {
             padding: 25px;
-            border-left: 4px solid #667eea;
-            background: #f8f9fa;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #000;
+            background: #f5f5f5;
         }
 
         .feature-icon {
@@ -85,7 +174,7 @@
         }
 
         .feature h3 {
-            color: #667eea;
+            color: #000;
             margin-bottom: 10px;
             font-size: 1.3em;
         }
@@ -95,22 +184,21 @@
         }
 
         .section h2 {
-            color: #667eea;
-            font-size: 2em;
+            color: #000;
+            font-size: 1.8em;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 2px solid #000;
         }
 
         .code-block {
-            background: #2d3748;
-            color: #f7fafc;
+            background: #f5f5f5;
+            color: #000;
             padding: 20px;
-            border-radius: 8px;
+            border: 2px solid #000;
             overflow-x: auto;
             margin: 20px 0;
             font-family: 'Courier New', Courier, monospace;
-            position: relative;
         }
 
         .code-block pre {
@@ -124,12 +212,12 @@
         }
 
         .command {
-            color: #68d391;
+            color: #000;
             font-weight: bold;
         }
 
         .comment {
-            color: #a0aec0;
+            color: #666;
             font-style: italic;
         }
 
@@ -144,47 +232,36 @@
         .btn {
             display: inline-block;
             padding: 15px 35px;
-            background: #667eea;
-            color: white;
+            background: #000;
+            color: #fff;
             text-decoration: none;
-            border-radius: 8px;
             font-weight: bold;
+            border: 2px solid #000;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-        .btn-secondary {
-            background: #764ba2;
-        }
-
-        .btn-secondary:hover {
-            background: #653b8a;
+            background: #fff;
+            color: #000;
         }
 
         .examples {
-            background: #f8f9fa;
+            background: #f5f5f5;
             padding: 30px;
-            border-radius: 8px;
+            border: 2px solid #000;
             margin: 30px 0;
         }
 
         .example-item {
             margin: 20px 0;
             padding: 20px;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid #764ba2;
+            background: #fff;
+            border-left: 4px solid #000;
         }
 
         .example-title {
             font-weight: bold;
-            color: #764ba2;
+            color: #000;
             margin-bottom: 10px;
         }
 
@@ -196,29 +273,30 @@
         }
 
         .tag {
-            background: #667eea;
-            color: white;
+            background: #000;
+            color: #fff;
             padding: 8px 15px;
-            border-radius: 20px;
             font-size: 0.9em;
             font-weight: 500;
+            border: 2px solid #000;
         }
 
         footer {
             text-align: center;
             padding: 30px 20px;
-            color: white;
-            opacity: 0.9;
+            color: #666;
+            border-top: 2px solid #000;
+            margin-top: 40px;
         }
 
         footer a {
-            color: white;
+            color: #000;
             text-decoration: underline;
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: 30px 20px;
+            .main-content, .query-section {
+                padding: 20px;
             }
 
             h1 {
@@ -226,7 +304,7 @@
             }
 
             .logo {
-                font-size: 3em;
+                font-size: 2.5em;
             }
 
             .features {
@@ -244,12 +322,11 @@
             }
         }
 
-        .highlight {
-            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: bold;
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #666;
         }
     </style>
 </head>
@@ -258,49 +335,89 @@
         <header>
             <div class="logo">🕵️‍♂️</div>
             <h1>PaperHunter</h1>
-            <p class="tagline">A robust academic paper discovery and precision filtering tool that fetches research from over 300 top computer science conferences via DBLP</p>
+            <p class="tagline">强大的学术论文发现和精确过滤工具，可从DBLP获取300多个顶级计算机科学会议的研究论文</p>
         </header>
+
+        <section class="query-section">
+            <h2>🔍 论文查询</h2>
+            <form id="queryForm">
+                <div class="form-group">
+                    <label for="conferences">会议名称</label>
+                    <input type="text" id="conferences" name="conferences" placeholder="输入会议缩写，例如: cvpr, iccv, aaai (用空格分隔多个会议)" required>
+                    <small>支持300+会议，输入 "all" 搜索所有会议</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">年份</label>
+                    <input type="text" id="year" name="year" placeholder="单个年份 (例如: 2024) 或年份范围 (例如: 2020-2024)" required>
+                    <small>支持单个年份或年份范围查询</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywords_or">关键词 (OR逻辑)</label>
+                    <input type="text" id="keywords_or" name="keywords_or" placeholder="输入关键词，用空格分隔 (至少匹配其中一个)">
+                    <small>论文标题中至少包含其中一个关键词</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywords_and">关键词 (AND逻辑)</label>
+                    <input type="text" id="keywords_and" name="keywords_and" placeholder="输入关键词，用空格分隔 (必须全部匹配)">
+                    <small>论文标题中必须包含所有这些关键词</small>
+                </div>
+
+                <button type="submit" class="btn-search">开始搜索</button>
+            </form>
+
+            <div class="loading" id="loading">
+                正在搜索论文，请稍候...
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <h3>搜索结果</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </section>
 
         <div class="main-content">
             <section class="section">
-                <h2>✨ Features</h2>
+                <h2>✨ 功能特性</h2>
                 <div class="features">
                     <div class="feature">
                         <div class="feature-icon">🔍</div>
-                        <h3>Conference Coverage</h3>
-                        <p>Supports 300+ CS conferences across AI, ML, Systems, Networking, Security, Databases, and more</p>
+                        <h3>会议覆盖</h3>
+                        <p>支持300多个计算机科学会议，涵盖人工智能、机器学习、系统、网络、安全、数据库等领域</p>
                     </div>
                     <div class="feature">
                         <div class="feature-icon">🧠</div>
-                        <h3>Advanced Filtering</h3>
-                        <p>Use logical AND/OR with keywords for precise search capabilities</p>
+                        <h3>高级过滤</h3>
+                        <p>使用关键词的逻辑AND/OR进行精确搜索</p>
                     </div>
                     <div class="feature">
                         <div class="feature-icon">📆</div>
-                        <h3>Multi-Year Query</h3>
-                        <p>Easily search across a year range to track research evolution</p>
+                        <h3>多年查询</h3>
+                        <p>轻松跨年份范围搜索，追踪研究演变</p>
                     </div>
                     <div class="feature">
                         <div class="feature-icon">🔁</div>
-                        <h3>Robust Crawling</h3>
-                        <p>Retry & delay mechanisms to respect DBLP rate limits</p>
+                        <h3>稳定抓取</h3>
+                        <p>重试和延迟机制，遵守DBLP速率限制</p>
                     </div>
                     <div class="feature">
                         <div class="feature-icon">🛠</div>
-                        <h3>Easy to Use</h3>
-                        <p>Advanced CLI with intuitive commands and helpful documentation</p>
+                        <h3>易于使用</h3>
+                        <p>直观的命令行界面和完善的文档</p>
                     </div>
                     <div class="feature">
                         <div class="feature-icon">⚡</div>
-                        <h3>Fast & Efficient</h3>
-                        <p>Optimized crawling with smart caching and parallel processing</p>
+                        <h3>快速高效</h3>
+                        <p>优化的抓取机制，智能缓存和并行处理</p>
                     </div>
                 </div>
             </section>
 
             <section class="section">
-                <h2>🎓 Supported Conferences</h2>
-                <p style="margin-bottom: 20px;">PaperHunter supports conferences across all major computer science domains:</p>
+                <h2>🎓 支持的会议</h2>
+                <p style="margin-bottom: 20px;">PaperHunter支持所有主要计算机科学领域的会议：</p>
                 <div class="conference-tags">
                     <span class="tag">AAAI</span>
                     <span class="tag">NeurIPS</span>
@@ -320,60 +437,60 @@
                     <span class="tag">SIGMOD</span>
                     <span class="tag">VLDB</span>
                     <span class="tag">KDD</span>
-                    <span class="tag">...and 280+ more!</span>
+                    <span class="tag">...还有280多个！</span>
                 </div>
                 <div class="code-block">
-                    <pre><code><span class="comment"># List all supported conferences</span>
+                    <pre><code><span class="comment"># 列出所有支持的会议</span>
 <span class="command">paperhunter conference</span></code></pre>
                 </div>
             </section>
 
             <section class="section">
-                <h2>⚙️ Installation</h2>
+                <h2>⚙️ 安装</h2>
                 <div class="code-block">
-                    <pre><code><span class="comment"># Clone the repository</span>
+                    <pre><code><span class="comment"># 克隆仓库</span>
 <span class="command">git clone https://github.com/passer12/PaperHunter.git</span>
 <span class="command">cd PaperHunter</span>
 
-<span class="comment"># Install PaperHunter</span>
+<span class="comment"># 安装 PaperHunter</span>
 <span class="command">chmod +x install.sh</span>
 <span class="command">./install.sh</span></code></pre>
                 </div>
-                <p style="margin-top: 20px;"><strong>Prerequisites:</strong> Python ≥ 3.6, <code>requests</code>, <code>beautifulsoup4</code></p>
+                <p style="margin-top: 20px;"><strong>先决条件：</strong> Python ≥ 3.6, <code>requests</code>, <code>beautifulsoup4</code></p>
             </section>
 
             <section class="section">
-                <h2>🚀 Usage</h2>
+                <h2>🚀 使用方法</h2>
                 <div class="code-block">
                     <pre><code><span class="command">paperhunter -con &lt;conf1&gt; [&lt;conf2&gt; ...] -year &lt;year&gt;|&lt;start&gt;-&lt;end&gt; [-kw &lt;kw1&gt; ...] [-kw_all &lt;kw1&gt; ...]</span></code></pre>
                 </div>
                 
                 <div class="examples">
-                    <h3 style="margin-bottom: 20px; color: #764ba2;">📝 Examples</h3>
+                    <h3 style="margin-bottom: 20px; color: #000;">📝 示例</h3>
                     
                     <div class="example-item">
-                        <div class="example-title">Search for "vulnerability" or "malware" papers in NDSS and USENIX Security (2021–2024):</div>
+                        <div class="example-title">在NDSS和USENIX Security中搜索包含"vulnerability"或"malware"的论文（2021-2024）：</div>
                         <div class="code-block">
                             <pre><code><span class="command">paperhunter -con ndss security -year 2021-2024 -kw "vulnerability" "malware"</span></code></pre>
                         </div>
                     </div>
 
                     <div class="example-item">
-                        <div class="example-title">Search IEEE S&P 2023 papers that must include "attack" and at least one of ["IoT", "firmware"]:</div>
+                        <div class="example-title">搜索IEEE S&P 2023中必须包含"attack"且至少包含["IoT", "firmware"]之一的论文：</div>
                         <div class="code-block">
                             <pre><code><span class="command">paperhunter -con sp -year 2023 -kw "IoT" "firmware" -kw_all "attack"</span></code></pre>
                         </div>
                     </div>
 
                     <div class="example-item">
-                        <div class="example-title">Find papers in CCS from 2020 to 2022 related to "side channel":</div>
+                        <div class="example-title">在CCS 2020-2022中查找与"side channel"相关的论文：</div>
                         <div class="code-block">
                             <pre><code><span class="command">paperhunter -con ccs -year 2020-2022 -kw "side channel"</span></code></pre>
                         </div>
                     </div>
 
                     <div class="example-item">
-                        <div class="example-title">Search all supported conferences for "DNS hijacking" in 2024:</div>
+                        <div class="example-title">在所有支持的会议中搜索2024年的"DNS hijacking"论文：</div>
                         <div class="code-block">
                             <pre><code><span class="command">paperhunter -con all -year 2024 -kw "DNS hijacking"</span></code></pre>
                         </div>
@@ -382,35 +499,107 @@
             </section>
 
             <section class="section">
-                <h2>🛠 Special Commands</h2>
+                <h2>🛠 特殊命令</h2>
                 <div class="code-block">
-                    <pre><code><span class="comment"># Show help</span>
+                    <pre><code><span class="comment"># 显示帮助</span>
 <span class="command">paperhunter help</span>
 
-<span class="comment"># List all supported conferences</span>
+<span class="comment"># 列出所有支持的会议</span>
 <span class="command">paperhunter conference</span></code></pre>
                 </div>
             </section>
 
             <div class="btn-group">
                 <a href="https://github.com/passer12/PaperHunter" class="btn" target="_blank">
-                    View on GitHub
+                    在GitHub上查看
                 </a>
-                <a href="https://github.com/passer12/PaperHunter/issues" class="btn btn-secondary" target="_blank">
-                    Report Issue
+                <a href="https://github.com/passer12/PaperHunter/issues" class="btn" target="_blank">
+                    报告问题
                 </a>
             </div>
         </div>
 
         <footer>
             <p>
-                <strong>PaperHunter</strong> - Powered by <a href="https://dblp.org/" target="_blank">DBLP Computer Science Bibliography</a>
+                <strong>PaperHunter</strong> - 基于 <a href="https://dblp.org/" target="_blank">DBLP计算机科学书目</a>
             </p>
             <p style="margin-top: 10px;">
-                Released under the MIT License | 
-                <a href="https://github.com/passer12/PaperHunter" target="_blank">GitHub Repository</a>
+                基于MIT许可证发布 | 
+                <a href="https://github.com/passer12/PaperHunter" target="_blank">GitHub仓库</a>
             </p>
         </footer>
     </div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('queryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const conferences = document.getElementById('conferences').value.trim();
+            const year = document.getElementById('year').value.trim();
+            const keywordsOr = document.getElementById('keywords_or').value.trim();
+            const keywordsAnd = document.getElementById('keywords_and').value.trim();
+            
+            // Validate inputs
+            if (!conferences || !year) {
+                alert('请输入会议名称和年份！');
+                return;
+            }
+            
+            if (!keywordsOr && !keywordsAnd) {
+                alert('请至少输入一个关键词（OR逻辑或AND逻辑）！');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            // Build command
+            let command = `paperhunter -con ${conferences} -year ${year}`;
+            if (keywordsOr) {
+                command += ` -kw ${keywordsOr}`;
+            }
+            if (keywordsAnd) {
+                command += ` -kw_all ${keywordsAnd}`;
+            }
+            
+            // Simulate search (in a real implementation, this would call a backend API)
+            // For demonstration purposes, we'll show a message with the command
+            setTimeout(function() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultsSection').style.display = 'block';
+                
+                const resultsContent = document.getElementById('resultsContent');
+                resultsContent.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-meta">查询命令：</div>
+                        <code>${command}</code>
+                    </div>
+                    <div class="result-item" style="background: #fff8dc; border-left-color: #666;">
+                        <p style="margin-bottom: 10px;"><strong>📌 注意：</strong></p>
+                        <p>此页面是前端演示界面。要执行实际搜索，请：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>按照上面的安装说明在本地安装PaperHunter工具</li>
+                            <li>在终端中运行上面显示的命令</li>
+                            <li>或者，可以集成后端API来直接在此页面显示结果</li>
+                        </ol>
+                        <p style="margin-top: 10px;">完整的实现需要后端服务器来处理DBLP数据抓取和过滤。</p>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-meta">参数说明：</div>
+                        <p><strong>会议：</strong> ${conferences}</p>
+                        <p><strong>年份：</strong> ${year}</p>
+                        ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
+                        ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
+                    </div>
+                `;
+                
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
