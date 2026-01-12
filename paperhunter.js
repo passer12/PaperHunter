@@ -7,11 +7,12 @@
 const MAX_SUBPAGE = 5;
 const DELAY_RANGE = [500, 1500]; // milliseconds
 
-// CORS proxy option (can be enabled by users if needed)
-// Note: Public CORS proxies may be unreliable or rate-limited
-const CORS_PROXY = ''; // Users can set this to a CORS proxy URL if needed
-// Example: 'https://cors-anywhere.herokuapp.com/'
-// WARNING: Public CORS proxies should only be used for testing!
+// CORS proxy option to bypass browser CORS restrictions
+// Using allorigins.win - a free, reliable CORS proxy service
+// Note: Public CORS proxies may be rate-limited, but this enables the browser version to work
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+// Alternative option: 'https://corsproxy.io/?'
+// To disable CORS proxy, set this to an empty string: ''
 
 // Known conference list - matches config.py
 const KNOWN_CONFS = {
