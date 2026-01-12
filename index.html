@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PaperHunter - A robust academic paper discovery and precision filtering tool for computer science research">
+    <meta name="keywords" content="academic papers, research, DBLP, computer science, conference papers">
+    <title>🕵️‍♂️ PaperHunter - Academic Paper Discovery Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            color: white;
+        }
+
+        .logo {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 50px;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature {
+            padding: 25px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .section {
+            margin: 50px 0;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .code-block code {
+            font-size: 0.95em;
+        }
+
+        .command {
+            color: #68d391;
+            font-weight: bold;
+        }
+
+        .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 15px 35px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+        }
+
+        .btn-secondary:hover {
+            background: #653b8a;
+        }
+
+        .examples {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .example-item {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #764ba2;
+        }
+
+        .example-title {
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .conference-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: white;
+            opacity: 0.9;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .logo {
+                font-size: 3em;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🕵️‍♂️</div>
+            <h1>PaperHunter</h1>
+            <p class="tagline">A robust academic paper discovery and precision filtering tool that fetches research from over 300 top computer science conferences via DBLP</p>
+        </header>
+
+        <div class="main-content">
+            <section class="section">
+                <h2>✨ Features</h2>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Conference Coverage</h3>
+                        <p>Supports 300+ CS conferences across AI, ML, Systems, Networking, Security, Databases, and more</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🧠</div>
+                        <h3>Advanced Filtering</h3>
+                        <p>Use logical AND/OR with keywords for precise search capabilities</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">📆</div>
+                        <h3>Multi-Year Query</h3>
+                        <p>Easily search across a year range to track research evolution</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔁</div>
+                        <h3>Robust Crawling</h3>
+                        <p>Retry & delay mechanisms to respect DBLP rate limits</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🛠</div>
+                        <h3>Easy to Use</h3>
+                        <p>Advanced CLI with intuitive commands and helpful documentation</p>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Fast & Efficient</h3>
+                        <p>Optimized crawling with smart caching and parallel processing</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🎓 Supported Conferences</h2>
+                <p style="margin-bottom: 20px;">PaperHunter supports conferences across all major computer science domains:</p>
+                <div class="conference-tags">
+                    <span class="tag">AAAI</span>
+                    <span class="tag">NeurIPS</span>
+                    <span class="tag">ICML</span>
+                    <span class="tag">CVPR</span>
+                    <span class="tag">ICCV</span>
+                    <span class="tag">ASPLOS</span>
+                    <span class="tag">ISCA</span>
+                    <span class="tag">OSDI</span>
+                    <span class="tag">SOSP</span>
+                    <span class="tag">SIGCOMM</span>
+                    <span class="tag">NSDI</span>
+                    <span class="tag">CCS</span>
+                    <span class="tag">USENIX Security</span>
+                    <span class="tag">NDSS</span>
+                    <span class="tag">S&P</span>
+                    <span class="tag">SIGMOD</span>
+                    <span class="tag">VLDB</span>
+                    <span class="tag">KDD</span>
+                    <span class="tag">...and 280+ more!</span>
+                </div>
+                <div class="code-block">
+                    <pre><code><span class="comment"># List all supported conferences</span>
+<span class="command">paperhunter conference</span></code></pre>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚙️ Installation</h2>
+                <div class="code-block">
+                    <pre><code><span class="comment"># Clone the repository</span>
+<span class="command">git clone https://github.com/passer12/PaperHunter.git</span>
+<span class="command">cd PaperHunter</span>
+
+<span class="comment"># Install PaperHunter</span>
+<span class="command">chmod +x install.sh</span>
+<span class="command">./install.sh</span></code></pre>
+                </div>
+                <p style="margin-top: 20px;"><strong>Prerequisites:</strong> Python ≥ 3.6, <code>requests</code>, <code>beautifulsoup4</code></p>
+            </section>
+
+            <section class="section">
+                <h2>🚀 Usage</h2>
+                <div class="code-block">
+                    <pre><code><span class="command">paperhunter -con &lt;conf1&gt; [&lt;conf2&gt; ...] -year &lt;year&gt;|&lt;start&gt;-&lt;end&gt; [-kw &lt;kw1&gt; ...] [-kw_all &lt;kw1&gt; ...]</span></code></pre>
+                </div>
+                
+                <div class="examples">
+                    <h3 style="margin-bottom: 20px; color: #764ba2;">📝 Examples</h3>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Search for "vulnerability" or "malware" papers in NDSS and USENIX Security (2021–2024):</div>
+                        <div class="code-block">
+                            <pre><code><span class="command">paperhunter -con ndss security -year 2021-2024 -kw "vulnerability" "malware"</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="example-item">
+                        <div class="example-title">Search IEEE S&P 2023 papers that must include "attack" and at least one of ["IoT", "firmware"]:</div>
+                        <div class="code-block">
+                            <pre><code><span class="command">paperhunter -con sp -year 2023 -kw "IoT" "firmware" -kw_all "attack"</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="example-item">
+                        <div class="example-title">Find papers in CCS from 2020 to 2022 related to "side channel":</div>
+                        <div class="code-block">
+                            <pre><code><span class="command">paperhunter -con ccs -year 2020-2022 -kw "side channel"</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="example-item">
+                        <div class="example-title">Search all supported conferences for "DNS hijacking" in 2024:</div>
+                        <div class="code-block">
+                            <pre><code><span class="command">paperhunter -con all -year 2024 -kw "DNS hijacking"</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🛠 Special Commands</h2>
+                <div class="code-block">
+                    <pre><code><span class="comment"># Show help</span>
+<span class="command">paperhunter help</span>
+
+<span class="comment"># List all supported conferences</span>
+<span class="command">paperhunter conference</span></code></pre>
+                </div>
+            </section>
+
+            <div class="btn-group">
+                <a href="https://github.com/passer12/PaperHunter" class="btn" target="_blank">
+                    View on GitHub
+                </a>
+                <a href="https://github.com/passer12/PaperHunter/issues" class="btn btn-secondary" target="_blank">
+                    Report Issue
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                <strong>PaperHunter</strong> - Powered by <a href="https://dblp.org/" target="_blank">DBLP Computer Science Bibliography</a>
+            </p>
+            <p style="margin-top: 10px;">
+                Released under the MIT License | 
+                <a href="https://github.com/passer12/PaperHunter" target="_blank">GitHub Repository</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
