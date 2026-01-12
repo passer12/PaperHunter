@@ -7,17 +7,12 @@
 const MAX_SUBPAGE = 5;
 const DELAY_RANGE = [500, 1500]; // milliseconds
 
-// CORS proxy option to bypass browser CORS restrictions
-// Using corsproxy.io - a free, reliable CORS proxy service
-// ⚠️ PRIVACY NOTICE: When using a CORS proxy, your requests (including conference names,
-// years, and keywords) will be routed through a third-party service. For sensitive research,
-// consider using the Python CLI version instead, which makes direct requests to DBLP.
-// Note: Public CORS proxies may be rate-limited, but this enables the browser version to work
-const CORS_PROXY = 'https://corsproxy.io/?';
-// Alternative options: 
-// - 'https://api.allorigins.win/raw?url='
-// - 'https://api.codetabs.com/v1/proxy?quest='
-// To disable CORS proxy and use direct requests (will fail due to CORS), set to empty string: ''
+// DBLP API configuration
+// Using DBLP's official Search API which supports CORS natively
+// No third-party proxy needed - direct access to DBLP's API
+// API Documentation: https://dblp.org/faq/How+to+use+the+dblp+search+API.html
+const DBLP_SEARCH_API = 'https://dblp.org/search/publ/api';
+const API_MAX_RESULTS = 1000; // Maximum results per API request
 
 // Known conference list - matches config.py
 const KNOWN_CONFS = {
@@ -252,135 +247,74 @@ function randomDelay() {
 }
 
 /**
- * Check if an error is a CORS-related error
+ * Build DBLP Search API query URL
+ * @param {string} confShort - Conference short name
+ * @param {string} year - Year
+ * @param {number} maxResults - Maximum number of results to fetch
+ * @returns {string} - Full API URL
  */
-function isCorsError(error) {
-    // Check for TypeError which is typically thrown for network/CORS issues
-    if (error instanceof TypeError) {
-        return true;
-    }
-    // Check error message for CORS-related keywords
-    const errorMsg = error.message.toLowerCase();
-    return errorMsg.includes('cors') || 
-           errorMsg.includes('network') || 
-           errorMsg.includes('failed to fetch');
-}
-
-/**
- * Build URL with optional CORS proxy
- */
-function buildUrl(url) {
-    return CORS_PROXY ? CORS_PROXY + url : url;
-}
-
-/**
- * Check and return valid conference pages for a given year from DBLP
- */
-async function checkConfPages(short, key, year) {
-    const baseUrl = `https://dblp.org/db/conf/${short}/`;
+function buildSearchApiUrl(confShort, year, maxResults = API_MAX_RESULTS) {
+    // Use streamid query for conference and year
+    // streamid format: conf/{conference}/{conference}{year}
+    const streamid = `conf/${confShort}/${confShort}${year}`;
+    const query = `streamid:${streamid}:`;
     
-    // Special suffix mappings for specific conferences with non-standard URL formats
-    const specialSuffix = {
-        "vldb": "w",
-        "sca": "p",
-        "ubicomp": "ap",
-        "eurovis": "short",
-        "sgp": "p",
-        "egsr": "st",
-        "pg": "s"
-    };
+    // Build the API URL with parameters
+    const params = new URLSearchParams({
+        q: query,
+        format: 'json',
+        h: maxResults.toString()
+    });
+    
+    return `${DBLP_SEARCH_API}?${params.toString()}`;
+}
 
-    // 1. Try main conference page (e.g., icml2024.html)
-    const mainUrl = `${baseUrl}${key}${year}.html`;
+/**
+ * Fetch papers from DBLP Search API for a given conference and year
+ * @param {string} confShort - Conference short name
+ * @param {string} dblpKey - DBLP key for the conference
+ * @param {string} year - Year
+ * @returns {Promise<Array<string>>} - Array of paper titles
+ */
+async function fetchPapersFromApi(confShort, dblpKey, year) {
+    const apiUrl = buildSearchApiUrl(confShort, year);
+    
     try {
-        const response = await fetch(buildUrl(mainUrl), { 
+        const response = await fetch(apiUrl, {
             method: 'GET',
             mode: 'cors',
             cache: 'default'
         });
-        if (response.ok) {
-            return [mainUrl];
+        
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
         }
+        
+        const data = await response.json();
+        
+        // Extract paper titles from the API response
+        const titles = [];
+        if (data.result && data.result.hits && data.result.hits.hit) {
+            const hits = data.result.hits.hit;
+            for (const hit of hits) {
+                if (hit.info && hit.info.title) {
+                    // Title might be a string or an object, handle both cases
+                    let title = hit.info.title;
+                    if (typeof title === 'object' && title.text) {
+                        title = title.text;
+                    }
+                    if (title) {
+                        titles.push(title.trim());
+                    }
+                }
+            }
+        }
+        
+        return titles;
     } catch (e) {
-        console.log(`Error checking main page: ${e.message}`);
-        // If this is a CORS error, throw a specific error
-        if (isCorsError(e)) {
-            throw new Error('CORS_ERROR');
-        }
+        console.error(`Error fetching from DBLP API: ${e.message}`);
+        throw e;
     }
-
-    // 2. Try sub-pages (e.g., icml2024-1.html)
-    const found = [];
-    for (let i = 1; i <= MAX_SUBPAGE; i++) {
-        const subUrl = `${baseUrl}${key}${year}-${i}.html`;
-        try {
-            const response = await fetch(buildUrl(subUrl), { 
-                method: 'GET',
-                mode: 'cors',
-                cache: 'default'
-            });
-            if (response.ok) {
-                found.push(subUrl);
-            } else {
-                break; // Stop if non-200 status code encountered
-            }
-        } catch (e) {
-            console.log(`Error checking sub-page ${i}: ${e.message}`);
-            if (isCorsError(e)) {
-                throw new Error('CORS_ERROR');
-            }
-            break;
-        }
-        await randomDelay();
-    }
-
-    if (found.length > 0) {
-        return found;
-    }
-
-    // 3. Try special suffix pages for conferences with unique URL patterns
-    if (key in specialSuffix) {
-        const suffix = specialSuffix[key];
-        const specialUrl = `${baseUrl}${key}${year}${suffix}.html`;
-        try {
-            const response = await fetch(buildUrl(specialUrl), { 
-                method: 'GET',
-                mode: 'cors',
-                cache: 'default'
-            });
-            if (response.ok) {
-                return [specialUrl];
-            }
-        } catch (e) {
-            console.log(`Error checking special suffix page: ${e.message}`);
-            if (isCorsError(e)) {
-                throw new Error('CORS_ERROR');
-            }
-        }
-    }
-
-    // No valid pages found
-    return [];
-}
-
-/**
- * Parse HTML and extract paper titles
- */
-function parsePaperTitles(htmlText) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, 'text/html');
-    const titles = [];
-    
-    // Find all cite elements with class "data"
-    const cites = doc.querySelectorAll('cite.data');
-    cites.forEach(cite => {
-        const titleElement = cite.querySelector('span.title');
-        if (titleElement && titleElement.textContent) {
-            titles.push(titleElement.textContent.trim());
-        }
-    });
-    
-    return titles;
 }
 
 /**
@@ -442,52 +376,26 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
         progressCallback(`Recognized conference: ${fullName}`);
     }
     
-    // Get valid conference pages
-    let validPages;
+    // Fetch papers using DBLP Search API
+    let titles;
     try {
-        validPages = await checkConfPages(confShort, dblpKey, year);
-    } catch (e) {
-        if (e.message === 'CORS_ERROR') {
-            throw new Error('CORS_ERROR');
-        }
-        throw e;
-    }
-    
-    if (validPages.length === 0) {
         if (progressCallback) {
-            progressCallback(`No valid conference pages found for ${fullName} in ${year}`);
+            progressCallback(`Fetching papers from DBLP API...`);
+        }
+        titles = await fetchPapersFromApi(confShort, dblpKey, year);
+        await randomDelay(); // Be respectful to the API
+    } catch (e) {
+        if (progressCallback) {
+            progressCallback(`Error fetching papers: ${e.message}`);
         }
         return [];
     }
     
-    // Extract all paper titles from valid pages
-    const titles = [];
-    for (const url of validPages) {
-        try {
-            const response = await fetch(buildUrl(url), {
-                mode: 'cors',
-                cache: 'default'
-            });
-            if (!response.ok) {
-                if (progressCallback) {
-                    progressCallback(`Failed to retrieve ${url} (Status: ${response.status})`);
-                }
-                continue;
-            }
-            
-            const htmlText = await response.text();
-            const pageTitles = parsePaperTitles(htmlText);
-            titles.push(...pageTitles);
-            
-            await randomDelay();
-        } catch (e) {
-            if (progressCallback) {
-                progressCallback(`Error during content extraction: ${e.message}`);
-            }
-            if (isCorsError(e)) {
-                throw new Error('CORS_ERROR');
-            }
+    if (titles.length === 0) {
+        if (progressCallback) {
+            progressCallback(`No papers found for ${fullName} in ${year}`);
         }
+        return [];
     }
     
     // Filter titles based on keyword criteria
