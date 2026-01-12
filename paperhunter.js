@@ -246,6 +246,21 @@ function randomDelay() {
 }
 
 /**
+ * Check if an error is a CORS-related error
+ */
+function isCorsError(error) {
+    // Check for TypeError which is typically thrown for network/CORS issues
+    if (error instanceof TypeError) {
+        return true;
+    }
+    // Check error message for CORS-related keywords
+    const errorMsg = error.message.toLowerCase();
+    return errorMsg.includes('cors') || 
+           errorMsg.includes('network') || 
+           errorMsg.includes('failed to fetch');
+}
+
+/**
  * Build URL with optional CORS proxy
  */
 function buildUrl(url) {
@@ -283,7 +298,7 @@ async function checkConfPages(short, key, year) {
     } catch (e) {
         console.log(`Error checking main page: ${e.message}`);
         // If this is a CORS error, throw a specific error
-        if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+        if (isCorsError(e)) {
             throw new Error('CORS_ERROR');
         }
     }
@@ -305,7 +320,7 @@ async function checkConfPages(short, key, year) {
             }
         } catch (e) {
             console.log(`Error checking sub-page ${i}: ${e.message}`);
-            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+            if (isCorsError(e)) {
                 throw new Error('CORS_ERROR');
             }
             break;
@@ -332,7 +347,7 @@ async function checkConfPages(short, key, year) {
             }
         } catch (e) {
             console.log(`Error checking special suffix page: ${e.message}`);
-            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+            if (isCorsError(e)) {
                 throw new Error('CORS_ERROR');
             }
         }
@@ -463,7 +478,7 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
             if (progressCallback) {
                 progressCallback(`Error during content extraction: ${e.message}`);
             }
-            if (e.message.includes('fetch') || e.message.includes('CORS') || e.message.includes('network')) {
+            if (isCorsError(e)) {
                 throw new Error('CORS_ERROR');
             }
         }

@@ -571,16 +571,34 @@
             
             try {
                 if (year.includes('-')) {
-                    const [startYear, endYear] = year.split('-').map(y => parseInt(y.trim()));
+                    const [startYearStr, endYearStr] = year.split('-').map(y => y.trim());
+                    const startYear = parseInt(startYearStr);
+                    const endYear = parseInt(endYearStr);
+                    
+                    // Validate both years are valid numbers
+                    if (isNaN(startYear) || isNaN(endYear)) {
+                        alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
+                        return;
+                    }
+                    
                     if (startYear > endYear) {
                         alert('起始年份必须小于或等于结束年份！');
                         return;
                     }
+                    
                     for (let y = startYear; y <= endYear; y++) {
                         years.push(y);
                     }
                 } else {
-                    years = [parseInt(year)];
+                    const parsedYear = parseInt(year);
+                    
+                    // Validate year is a valid number
+                    if (isNaN(parsedYear)) {
+                        alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
+                        return;
+                    }
+                    
+                    years = [parsedYear];
                 }
             } catch (e) {
                 alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
