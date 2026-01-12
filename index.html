@@ -340,6 +340,18 @@
 
         <section class="query-section">
             <h2>🔍 论文查询</h2>
+            
+            <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 20px; margin-bottom: 25px;">
+                <p style="margin-bottom: 10px;"><strong>⚠️ 重要提示：浏览器版本功能限制</strong></p>
+                <p style="margin-bottom: 10px;">由于浏览器的跨域安全策略（CORS），此网页版本<strong>可能无法</strong>直接访问DBLP数据。</p>
+                <p style="margin-bottom: 10px;"><strong>推荐使用方式：</strong></p>
+                <ul style="margin-left: 20px;">
+                    <li>安装Python版本的PaperHunter命令行工具（见下方"⚙️ 安装"部分）</li>
+                    <li>命令行工具功能完整，无限制，且更加稳定</li>
+                </ul>
+                <p style="margin-top: 10px;">您可以尝试使用下方表单，但如果遇到跨域错误，请安装命令行工具。</p>
+            </div>
+            
             <form id="queryForm">
                 <div class="form-group">
                     <label for="conferences">会议名称</label>
@@ -530,9 +542,10 @@
         </footer>
     </div>
 
+    <script src="paperhunter.js"></script>
     <script>
         // Handle form submission
-        document.getElementById('queryForm').addEventListener('submit', function(e) {
+        document.getElementById('queryForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             // Get form values
@@ -552,53 +565,167 @@
                 return;
             }
             
+            // Parse inputs
+            const confList = conferences.split(/[\s,]+/).filter(c => c);
+            let years = [];
+            
+            try {
+                if (year.includes('-')) {
+                    const [startYearStr, endYearStr] = year.split('-').map(y => y.trim());
+                    const startYear = parseInt(startYearStr);
+                    const endYear = parseInt(endYearStr);
+                    
+                    // Validate both years are valid numbers
+                    if (isNaN(startYear) || isNaN(endYear)) {
+                        alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
+                        return;
+                    }
+                    
+                    if (startYear > endYear) {
+                        alert('起始年份必须小于或等于结束年份！');
+                        return;
+                    }
+                    
+                    for (let y = startYear; y <= endYear; y++) {
+                        years.push(y);
+                    }
+                } else {
+                    const parsedYear = parseInt(year);
+                    
+                    // Validate year is a valid number
+                    if (isNaN(parsedYear)) {
+                        alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
+                        return;
+                    }
+                    
+                    years = [parsedYear];
+                }
+            } catch (e) {
+                alert('年份格式无效！请使用单个年份（如2024）或年份范围（如2020-2024）');
+                return;
+            }
+            
+            const keywordsOrList = keywordsOr ? keywordsOr.split(/\s+/).filter(k => k) : [];
+            const keywordsAndList = keywordsAnd ? keywordsAnd.split(/\s+/).filter(k => k) : [];
+            
             // Show loading
             document.getElementById('loading').style.display = 'block';
             document.getElementById('resultsSection').style.display = 'none';
             
-            // Build command
-            let command = `paperhunter -con ${conferences} -year ${year}`;
-            if (keywordsOr) {
-                command += ` -kw ${keywordsOr}`;
-            }
-            if (keywordsAnd) {
-                command += ` -kw_all ${keywordsAnd}`;
-            }
+            // Progress messages
+            const progressMessages = [];
+            const progressCallback = (msg) => {
+                progressMessages.push(msg);
+                console.log(msg);
+            };
             
-            // Simulate search (in a real implementation, this would call a backend API)
-            // For demonstration purposes, we'll show a message with the command
-            setTimeout(function() {
+            try {
+                // Perform search
+                const results = await PaperHunter.searchPapers(
+                    confList,
+                    years,
+                    keywordsOrList,
+                    keywordsAndList,
+                    progressCallback
+                );
+                
+                // Display results
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('resultsSection').style.display = 'block';
                 
                 const resultsContent = document.getElementById('resultsContent');
-                resultsContent.innerHTML = `
-                    <div class="result-item">
-                        <div class="result-meta">查询命令：</div>
-                        <code>${command}</code>
-                    </div>
-                    <div class="result-item" style="background: #fff8dc; border-left-color: #666;">
-                        <p style="margin-bottom: 10px;"><strong>📌 注意：</strong></p>
-                        <p>此页面是前端演示界面。要执行实际搜索，请：</p>
-                        <ol style="margin-left: 20px; margin-top: 10px;">
-                            <li>按照上面的安装说明在本地安装PaperHunter工具</li>
-                            <li>在终端中运行上面显示的命令</li>
-                            <li>或者，可以集成后端API来直接在此页面显示结果</li>
-                        </ol>
-                        <p style="margin-top: 10px;">完整的实现需要后端服务器来处理DBLP数据抓取和过滤。</p>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-meta">参数说明：</div>
-                        <p><strong>会议：</strong> ${conferences}</p>
-                        <p><strong>年份：</strong> ${year}</p>
-                        ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
-                        ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
-                    </div>
-                `;
+                
+                if (results.length === 0) {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="background: #fff8dc; border-left-color: #666;">
+                            <p><strong>😔 未找到匹配的论文</strong></p>
+                            <p style="margin-top: 10px;">没有找到符合指定条件的论文。请尝试：</p>
+                            <ul style="margin-left: 20px; margin-top: 10px;">
+                                <li>使用不同的关键词</li>
+                                <li>扩大年份范围</li>
+                                <li>检查会议名称是否正确</li>
+                            </ul>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-meta">搜索日志：</div>
+                            <pre style="white-space: pre-wrap; font-size: 0.9em;">${progressMessages.join('\n')}</pre>
+                        </div>
+                    `;
+                } else {
+                    let resultsHtml = `
+                        <div class="result-item" style="background: #e8f5e9; border-left-color: #4caf50;">
+                            <p><strong>✅ 找到 ${results.length} 篇论文</strong></p>
+                            <p style="margin-top: 5px;">搜索参数：</p>
+                            <ul style="margin-left: 20px; margin-top: 5px;">
+                                <li><strong>会议：</strong> ${conferences}</li>
+                                <li><strong>年份：</strong> ${year}</li>
+                                ${keywordsOr ? `<li><strong>关键词(OR)：</strong> ${keywordsOr}</li>` : ''}
+                                ${keywordsAnd ? `<li><strong>关键词(AND)：</strong> ${keywordsAnd}</li>` : ''}
+                            </ul>
+                        </div>
+                    `;
+                    
+                    results.forEach((result, index) => {
+                        resultsHtml += `
+                            <div class="result-item">
+                                <div class="result-meta">${index + 1}. [${result.conf.toUpperCase()} ${result.year}]</div>
+                                <p>${result.title}</p>
+                            </div>
+                        `;
+                    });
+                    
+                    resultsContent.innerHTML = resultsHtml;
+                }
                 
                 // Scroll to results
                 document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
-            }, 1000);
+                
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultsSection').style.display = 'block';
+                
+                const resultsContent = document.getElementById('resultsContent');
+                
+                // Check if it's a CORS error
+                if (error.message === 'CORS_ERROR') {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="background: #fff3cd; border-left-color: #ffc107;">
+                            <p><strong>🔒 跨域请求限制</strong></p>
+                            <p style="margin-top: 10px;">由于浏览器的跨域安全策略（CORS），无法直接从浏览器访问DBLP数据。</p>
+                            <p style="margin-top: 10px;"><strong>解决方案：</strong></p>
+                            <ol style="margin-left: 20px; margin-top: 10px;">
+                                <li><strong>推荐方式：</strong> 安装Python版本的PaperHunter工具（请参考下方的安装说明）</li>
+                                <li><strong>临时方案：</strong> 使用浏览器扩展禁用CORS（如Chrome的"CORS Unblock"扩展，仅用于测试）</li>
+                                <li><strong>技术说明：</strong> DBLP网站不提供CORS头，因此浏览器会阻止跨域请求以保护用户安全</li>
+                            </ol>
+                            <p style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3;">
+                                <strong>💡 提示：</strong> Python版本的工具不受此限制，可以完整访问所有DBLP数据。
+                                请查看下方的"⚙️ 安装"部分了解如何安装和使用命令行工具。
+                            </p>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-meta">搜索参数：</div>
+                            <p><strong>会议：</strong> ${conferences}</p>
+                            <p><strong>年份：</strong> ${year}</p>
+                            ${keywordsOr ? `<p><strong>关键词(OR)：</strong> ${keywordsOr}</p>` : ''}
+                            ${keywordsAnd ? `<p><strong>关键词(AND)：</strong> ${keywordsAnd}</p>` : ''}
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="background: #ffebee; border-left-color: #f44336;">
+                            <p><strong>❌ 搜索出错</strong></p>
+                            <p style="margin-top: 10px;">${error.message}</p>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-meta">搜索日志：</div>
+                            <pre style="white-space: pre-wrap; font-size: 0.9em;">${progressMessages.join('\n')}</pre>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }
         });
     </script>
 </body>
