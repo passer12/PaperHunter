@@ -7,6 +7,12 @@
 const MAX_SUBPAGE = 5;
 const DELAY_RANGE = [500, 1500]; // milliseconds
 
+// CORS proxy option (can be enabled by users if needed)
+// Note: Public CORS proxies may be unreliable or rate-limited
+const CORS_PROXY = ''; // Users can set this to a CORS proxy URL if needed
+// Example: 'https://cors-anywhere.herokuapp.com/'
+// WARNING: Public CORS proxies should only be used for testing!
+
 // Known conference list - matches config.py
 const KNOWN_CONFS = {
     // Computer Architecture/Parallel & Distributed Computing/Storage Systems - Class A
@@ -240,6 +246,13 @@ function randomDelay() {
 }
 
 /**
+ * Build URL with optional CORS proxy
+ */
+function buildUrl(url) {
+    return CORS_PROXY ? CORS_PROXY + url : url;
+}
+
+/**
  * Check and return valid conference pages for a given year from DBLP
  */
 async function checkConfPages(short, key, year) {
@@ -259,7 +272,7 @@ async function checkConfPages(short, key, year) {
     // 1. Try main conference page (e.g., icml2024.html)
     const mainUrl = `${baseUrl}${key}${year}.html`;
     try {
-        const response = await fetch(mainUrl, { 
+        const response = await fetch(buildUrl(mainUrl), { 
             method: 'GET',
             mode: 'cors',
             cache: 'default'
@@ -280,7 +293,7 @@ async function checkConfPages(short, key, year) {
     for (let i = 1; i <= MAX_SUBPAGE; i++) {
         const subUrl = `${baseUrl}${key}${year}-${i}.html`;
         try {
-            const response = await fetch(subUrl, { 
+            const response = await fetch(buildUrl(subUrl), { 
                 method: 'GET',
                 mode: 'cors',
                 cache: 'default'
@@ -309,7 +322,7 @@ async function checkConfPages(short, key, year) {
         const suffix = specialSuffix[key];
         const specialUrl = `${baseUrl}${key}${year}${suffix}.html`;
         try {
-            const response = await fetch(specialUrl, { 
+            const response = await fetch(buildUrl(specialUrl), { 
                 method: 'GET',
                 mode: 'cors',
                 cache: 'default'
@@ -430,7 +443,7 @@ async function fetchPapers(confShort, year, keywordsAny, keywordsAll, progressCa
     const titles = [];
     for (const url of validPages) {
         try {
-            const response = await fetch(url, {
+            const response = await fetch(buildUrl(url), {
                 mode: 'cors',
                 cache: 'default'
             });
